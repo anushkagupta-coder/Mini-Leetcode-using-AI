@@ -2,43 +2,91 @@
 
 import { useEffect, useState } from "react";
 import { supabase } from "@/lib/supabaseClient";
-import { buildLeaderboard } from "@/lib/buildLeaderboard";
+import { buildProblemTrie } from "@/lib/buildTrie";
 
-export default function Home() {
-  const [leaders, setLeaders] = useState([]);
+export default function HomePage() {
+  const [problems, setProblems] = useState([]);
+  const [search, setSearch] = useState("");
+  const [results, setResults] = useState([]);
 
+  // Fetch problems from Supabase
   useEffect(() => {
-    async function fetchLeaderboard() {
-      const { data } = await supabase
-        .from("leaderboard")
+    async function fetchProblems() {
+      const { data, error } = await supabase
+        .from("problems")
         .select("*");
 
-      const top = buildLeaderboard(data || [], 3);
-      setLeaders(top);
+      if (error) {
+        console.error("Supabase error:", error);
+        return;
+      }
+
+      setProblems(data || []);
+      setResults(data || []);
     }
 
-    fetchLeaderboard();
+    fetchProblems();
   }, []);
 
+  // Trie-based search
+  useEffect(() => {
+    if (search.trim() === "") {
+      setResults(problems);
+      return;
+    }
+
+    const trie = buildProblemTrie(problems);
+    setResults(trie.search(search));
+  }, [search, problems]);
+
   return (
-    <main className="p-6 max-w-xl mx-auto">
-      <h1 className="text-3xl font-bold mb-6">
-        🏆 Leaderboard
+    <main className="min-h-screen bg-gray-50 p-6">
+      <h1 className="text-3xl font-bold mb-4">
+        Problems
       </h1>
 
-      {leaders.map((user, index) => (
-        <div
-          key={user.id}
-          className="border p-4 rounded mb-3 flex justify-between"
-        >
-          <span>
-            #{index + 1} {user.username}
-          </span>
-          <span className="font-semibold">
-            {user.score}
-          </span>
-        </div>
-      ))}
+      {/* Search Bar */}
+      <input
+        type="text"
+        placeholder="Search problems..."
+        className="w-full p-3 border rounded-lg mb-6 focus:outline-none focus:ring-2 focus:ring-black"
+        value={search}
+        onChange={(e) => setSearch(e.target.value)}
+      />
+
+      {/* Problems List */}
+      {results.length === 0 && (
+        <p className="text-gray-500">
+          No problems found.
+        </p>
+      )}
+
+      <div className="space-y-4">
+        {results.map((p) => (
+          <div
+  key={p.id}
+  className="border rounded-lg p-5 bg-white shadow-sm hover:shadow-md transition"
+>
+  <h2 className="text-lg font-semibold text-gray-900">
+    {p.title}
+  </h2>
+
+  <p className="text-gray-600 mt-2 text-sm">
+    {p.description}
+  </p>
+
+  <div className="mt-3 flex justify-between text-sm">
+    <span className="font-medium">
+      Difficulty: {p.difficulty}
+    </span>
+    <span className="text-gray-500">
+      {p.tags?.join(", ")}
+    </span>
+  </div>
+</div>
+
+        ))}
+      </div>
     </main>
   );
 }
