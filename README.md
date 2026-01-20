@@ -27,3 +27,15 @@ Used for prefix-based search of problem titles, allowing efficient search in **O
 Used to implement leaderboard ranking efficiently, avoiding full sorting on every update.
 
 
+
+---
+
+## ▶️ How to Run Locally
+
+1. Clone the repository
+```bash
+git clone <repo-url>
+cd mini-leetcode
+npm install
+npm run dev
+
