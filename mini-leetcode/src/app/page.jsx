@@ -8,6 +8,12 @@ export default function HomePage() {
   const [problems, setProblems] = useState([]);
   const [search, setSearch] = useState("");
   const [results, setResults] = useState([]);
+  const [revisionIds, setRevisionIds] = useState([]);
+  const [mounted, setMounted] = useState(false);
+
+  useEffect(() => {
+  setMounted(true);
+}, []);
 
   // Fetch problems from Supabase
   useEffect(() => {
@@ -27,6 +33,27 @@ export default function HomePage() {
 
     fetchProblems();
   }, []);
+
+  //to keep revisioon list
+  useEffect(() => {
+  async function fetchRevisions() {
+    const {
+      data: { user },
+    } = await supabase.auth.getUser();
+
+    if (!user) return;
+
+    const { data } = await supabase
+      .from("revisions")
+      .select("problem_id")
+      .eq("user_id", user.id);
+
+    setRevisionIds(data?.map((r) => r.problem_id) || []);
+  }
+
+  fetchRevisions();
+}, []);
+
 
   // Trie-based search
   useEffect(() => {
@@ -62,35 +89,46 @@ export default function HomePage() {
       )}
 
       <div className="space-y-4">
-        {results
-  .filter((p) => p?.id) // 👈 ABSOLUTE KEY FIX
-  .map((p) => (
-    <Link
-      key={p.id}
-      href={`/problems/${p.id}`}
-      className="block border rounded-lg p-5 bg-white shadow-sm hover:shadow-md transition cursor-pointer"
-    >
-      <h2 className="text-lg font-semibold text-gray-900">
-        {p.title}
-      </h2>
+  {results
+    .filter((p) => p?.id)
+    .map((p) => {
+      const isSaved = mounted && revisionIds.includes(p.id); // 👈 THIS LINE
 
-      <p className="text-gray-600 mt-2 text-sm">
-        {p.description}
-      </p>
+      return (
+        <Link
+          key={p.id}
+          href={`/problems/${p.id}`}
+          className="block border rounded-lg p-5 bg-white shadow-sm hover:shadow-md transition cursor-pointer"
+        >
+          <div className="flex justify-between items-start">
+            <h2 className="text-lg font-semibold text-gray-900">
+              {p.title}
+            </h2>
 
-      <div className="mt-3 flex justify-between text-sm">
-        <span className="font-medium">
-          Difficulty: {p.difficulty}
-        </span>
-        <span className="text-gray-500">
-          {p.tags?.join(", ")}
-        </span>
-      </div>
-    </Link>
-))}
+            {isSaved && (
+              <span className="text-yellow-500 text-sm font-medium">
+                ⭐ Saved
+              </span>
+            )}
+          </div>
 
+          <p className="text-gray-600 mt-2 text-sm">
+            {p.description}
+          </p>
 
-      </div>
+          <div className="mt-3 flex justify-between text-sm">
+            <span className="font-medium">
+              Difficulty: {p.difficulty}
+            </span>
+            <span className="text-gray-500">
+              {p.tags?.join(", ")}
+            </span>
+          </div>
+        </Link>
+      );
+    })}
+</div>
+
     </main>
   );
 }

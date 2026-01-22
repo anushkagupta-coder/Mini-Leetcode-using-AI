@@ -1,27 +1,37 @@
+"use client";
+
 import Link from "next/link";
+import { useAuth } from "@/context/AuthContext";
+import LogoutButton from "./LogoutButton";
 
 export default function Header() {
+  const { user, loading } = useAuth();
+
+  if (loading) return null;
+
   return (
-    <header className="bg-black text-white">
-      <div className="max-w-6xl mx-auto px-6 py-4 flex justify-between items-center">
-        <h1 className="text-xl font-bold tracking-wide">
-          Mini LeetCode
-        </h1>
+    <header className="p-4 border-b flex justify-between items-center">
+      <Link href="/" className="font-bold text-lg">
+        Mini LeetCode
+      </Link>
 
+      <nav className="flex gap-4 items-center">
+        <Link href="/revision">Revision</Link>
 
-        <nav className="space-x-6 text-sm font-medium">
-          <Link href="/" className="hover:text-gray-300">
-            Problems
-          </Link>
-          <Link href="/leaderboard" className="hover:text-gray-300">
-            Leaderboard
-            
-          </Link>
-          <Link href="/evaluate" className="hover:text-gray-300">
-            Evaluate
-          </Link>
-        </nav>
-      </div>
+        {user ? (
+          <>
+            <span className="text-sm text-gray-600">
+              {user.email}
+            </span>
+            <LogoutButton />
+          </>
+        ) : (
+          <>
+            <Link href="/login">Login</Link>
+            <Link href="/signup">Sign Up</Link>
+          </>
+        )}
+      </nav>
     </header>
   );
 }

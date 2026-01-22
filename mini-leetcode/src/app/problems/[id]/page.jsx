@@ -1,5 +1,7 @@
+
 import { supabase } from "@/lib/supabaseClient";
 import Link from "next/link";
+import ProblemActions from "./ProblemActions";
 
 export default async function ProblemDetail({ params }) {
   const { id } = await params; // ✅ THIS IS THE FIX
@@ -39,6 +41,8 @@ export default async function ProblemDetail({ params }) {
       <p className="mb-6">
         <b>Tags:</b> {problem.tags?.join(", ")}
       </p>
+
+    <ProblemActions problem={problem} />
 
       <Link
         href={`/evaluate?problemId=${problem.id}`}
