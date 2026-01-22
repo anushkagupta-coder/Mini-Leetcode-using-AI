@@ -8,6 +8,7 @@ export default function Header() {
           Mini LeetCode
         </h1>
 
+
         <nav className="space-x-6 text-sm font-medium">
           <Link href="/" className="hover:text-gray-300">
             Problems
