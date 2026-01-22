@@ -15,6 +15,7 @@ export default function Header() {
           </Link>
           <Link href="/leaderboard" className="hover:text-gray-300">
             Leaderboard
+            
           </Link>
           <Link href="/evaluate" className="hover:text-gray-300">
             Evaluate
