@@ -1,10 +1,17 @@
 "use client";
 
 import { useState } from "react";
+import { useSearchParams } from "next/navigation";
 
 export default function EvaluatePage() {
   const [code, setCode] = useState("");
   const [feedback, setFeedback] = useState("");
+const searchParams = useSearchParams();
+const problemId = searchParams.get("problemId");
+
+<p className="mb-2 text-gray-600">
+  Solving Problem ID: {problemId}
+</p>
 
   async function evaluateCode() {
     setFeedback("Evaluating...");

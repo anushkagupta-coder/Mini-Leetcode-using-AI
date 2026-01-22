@@ -1,5 +1,5 @@
 "use client";
-
+import Link from "next/link";
 import { useEffect, useState } from "react";
 import { supabase } from "@/lib/supabaseClient";
 import { buildProblemTrie } from "@/lib/buildTrie";
@@ -62,30 +62,34 @@ export default function HomePage() {
       )}
 
       <div className="space-y-4">
-        {results.map((p) => (
-          <div
-  key={p.id}
-  className="border rounded-lg p-5 bg-white shadow-sm hover:shadow-md transition"
->
-  <h2 className="text-lg font-semibold text-gray-900">
-    {p.title}
-  </h2>
+        {results
+  .filter((p) => p?.id) // 👈 ABSOLUTE KEY FIX
+  .map((p) => (
+    <Link
+      key={p.id}
+      href={`/problems/${p.id}`}
+      className="block border rounded-lg p-5 bg-white shadow-sm hover:shadow-md transition cursor-pointer"
+    >
+      <h2 className="text-lg font-semibold text-gray-900">
+        {p.title}
+      </h2>
 
-  <p className="text-gray-600 mt-2 text-sm">
-    {p.description}
-  </p>
+      <p className="text-gray-600 mt-2 text-sm">
+        {p.description}
+      </p>
 
-  <div className="mt-3 flex justify-between text-sm">
-    <span className="font-medium">
-      Difficulty: {p.difficulty}
-    </span>
-    <span className="text-gray-500">
-      {p.tags?.join(", ")}
-    </span>
-  </div>
-</div>
+      <div className="mt-3 flex justify-between text-sm">
+        <span className="font-medium">
+          Difficulty: {p.difficulty}
+        </span>
+        <span className="text-gray-500">
+          {p.tags?.join(", ")}
+        </span>
+      </div>
+    </Link>
+))}
 
-        ))}
+
       </div>
     </main>
   );
