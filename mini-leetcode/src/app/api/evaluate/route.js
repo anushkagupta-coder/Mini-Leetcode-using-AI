@@ -1,40 +1,49 @@
-import { GoogleGenerativeAI } from "@google/generative-ai";
+import { GoogleGenAI } from "@google/genai";
 import { NextResponse } from "next/server";
 
 export async function POST(req) {
   try {
     const { code, language } = await req.json();
 
-    const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
-
-    // ⚠️ This is the MOST stable text model right now
-    const model = genAI.getGenerativeModel({
-      model: "models/text-bison-001",
+    const ai = new GoogleGenAI({
+      apiKey: process.env.GEMINI_API_KEY,
     });
 
-    const prompt = `
+    const result = await ai.models.generateContent({
+      model: "gemini-2.5-flash",
+      contents: [
+        {
+          role: "user",
+          parts: [
+            {
+              text: `
 You are a coding interview evaluator.
 
-
 Evaluate the following ${language} code:
-1. Correctness
-2. Time complexity
-3. Space complexity
-4. Code quality
-5. Score out of 10
+- Correctness
+- Time Complexity
+- Space Complexity
+- Code Quality
+- Score out of 10
 
 Code:
 ${code}
-`;
+              `,
+            },
+          ],
+        },
+      ],
+    });
 
-    const result = await model.generateContent(prompt);
-    const text = result.response.text();
+    const text =
+      result.candidates?.[0]?.content?.parts?.[0]?.text ??
+      "No response from AI";
 
     return NextResponse.json({ evaluation: text });
   } catch (error) {
-    console.error("Gemini Error:", error);
+    console.error("REAL GEMINI ERROR:", error);
     return NextResponse.json(
-      { evaluation: "AI evaluation failed" },
+      { evaluation: error.message },
       { status: 500 }
     );
   }
