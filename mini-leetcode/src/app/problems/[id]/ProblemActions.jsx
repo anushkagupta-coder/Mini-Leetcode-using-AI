@@ -26,15 +26,17 @@ export default function ProblemActions({ problem }) {
     <div className="mt-6">
       <button
         onClick={markForRevision}
-        className="px-4 py-2 bg-yellow-400 text-black rounded-lg"
+        disabled={saved}
+        className={`inline-flex items-center gap-2 px-4 py-2.5 rounded-xl font-medium text-sm transition ${
+          saved
+            ? "bg-emerald-100 text-emerald-700 cursor-default"
+            : "bg-amber-100 text-amber-800 hover:bg-amber-200 border border-amber-200"
+        }`}
       >
-        ⭐ Mark for Revision
+        ⭐ {saved ? "Added to Revision" : "Mark for Revision"}
       </button>
-
       {saved && (
-        <p className="text-green-600 mt-2">
-          Added to your Revision List
-        </p>
+        <p className="text-emerald-600 text-sm mt-2">Added to your Revision List</p>
       )}
     </div>
   );
