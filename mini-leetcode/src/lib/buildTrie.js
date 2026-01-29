@@ -9,3 +9,10 @@ export function buildProblemTrie(problems) {
 
   return trie;
 }
+
+// ✅ ADD THIS
+export function searchTrie(trie, query) {
+  if (!query) return [];
+  return trie.search(query);
+}
+
