@@ -1,8 +1,9 @@
 "use client";
+
 import Link from "next/link";
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { supabase } from "@/lib/supabaseClient";
-import { buildProblemTrie } from "@/lib/buildTrie";
+import { buildProblemTrie, searchTrie } from "@/lib/buildTrie";
 
 function diffClass(d) {
   if (d === "Easy") return "bg-emerald-100 text-emerald-800 border-emerald-200";
@@ -14,14 +15,9 @@ function diffClass(d) {
 export default function HomePage() {
   const [problems, setProblems] = useState([]);
   const [search, setSearch] = useState("");
-  const [results, setResults] = useState([]);
   const [revisionIds, setRevisionIds] = useState([]);
-  const [mounted, setMounted] = useState(false);
 
-  useEffect(() => {
-    setMounted(true);
-  }, []);
-
+  // ✅ fetch problems
   useEffect(() => {
     async function fetchProblems() {
       const { data, error } = await supabase.from("problems").select("*");
@@ -30,31 +26,35 @@ export default function HomePage() {
         return;
       }
       setProblems(data || []);
-      setResults(data || []);
     }
     fetchProblems();
   }, []);
 
+  // ✅ fetch revisions
   useEffect(() => {
     async function fetchRevisions() {
-      const { data: { user } } = await supabase.auth.getUser();
+      const {
+        data: { user },
+      } = await supabase.auth.getUser();
+
       if (!user) return;
+
       const { data } = await supabase
         .from("revisions")
         .select("problem_id")
         .eq("user_id", user.id);
+
       setRevisionIds(data?.map((r) => r.problem_id) || []);
     }
     fetchRevisions();
   }, []);
 
-  useEffect(() => {
-    if (search.trim() === "") {
-      setResults(problems);
-      return;
-    }
+  // ✅ derived results (NO setState in effect)
+  const results = useMemo(() => {
+    if (search.trim() === "") return problems;
+
     const trie = buildProblemTrie(problems);
-    setResults(trie.search(search));
+    return searchTrie(trie, search);
   }, [search, problems]);
 
   return (
@@ -89,48 +89,50 @@ export default function HomePage() {
         )}
 
         <div className="space-y-4">
-          {results
-            .filter((p) => p?.id)
-            .map((p) => {
-              const isSaved = mounted && revisionIds.includes(p.id);
-              return (
-                <Link
-                  key={p.id}
-                  href={`/problems/${p.id}`}
-                  className="block rounded-2xl border border-slate-200 bg-white p-5 shadow-sm hover:shadow-md hover:border-indigo-200/60 transition-all duration-200"
-                >
-                  <div className="flex justify-between items-start gap-4">
-                    <div className="min-w-0 flex-1">
-                      <h2 className="text-lg font-semibold text-slate-900 truncate">
-                        {p.title}
-                      </h2>
-                      <p className="mt-1.5 text-slate-600 text-sm line-clamp-2">
-                        {p.description}
-                      </p>
-                      <div className="mt-3 flex flex-wrap items-center gap-2">
-                        <span
-                          className={`inline-flex px-2.5 py-1 rounded-lg text-xs font-medium border ${diffClass(
-                            p.difficulty
-                          )}`}
-                        >
-                          {p.difficulty}
-                        </span>
-                        {p.tags?.length ? (
-                          <span className="text-slate-400 text-xs">
-                            {p.tags.join(" · ")}
-                          </span>
-                        ) : null}
-                      </div>
-                    </div>
-                    {isSaved && (
-                      <span className="shrink-0 text-amber-500" title="Saved for revision">
-                        ⭐
+          {results.map((p) => {
+            const isSaved = revisionIds.includes(p.id);
+
+            return (
+              <Link
+                key={p.id}
+                href={`/problems/${p.id}`}
+                className="block rounded-2xl border border-slate-200 bg-white p-5 shadow-sm hover:shadow-md hover:border-indigo-200/60 transition-all duration-200"
+              >
+                <div className="flex justify-between items-start gap-4">
+                  <div className="min-w-0 flex-1">
+                    <h2 className="text-lg font-semibold text-slate-900 truncate">
+                      {p.title}
+                    </h2>
+                    <p className="mt-1.5 text-slate-600 text-sm line-clamp-2">
+                      {p.description}
+                    </p>
+                    <div className="mt-3 flex flex-wrap items-center gap-2">
+                      <span
+                        className={`inline-flex px-2.5 py-1 rounded-lg text-xs font-medium border ${diffClass(
+                          p.difficulty
+                        )}`}
+                      >
+                        {p.difficulty}
                       </span>
-                    )}
+                      {p.tags?.length ? (
+                        <span className="text-slate-400 text-xs">
+                          {p.tags.join(" · ")}
+                        </span>
+                      ) : null}
+                    </div>
                   </div>
-                </Link>
-              );
-            })}
+                  {isSaved && (
+                    <span
+                      className="shrink-0 text-amber-500"
+                      title="Saved for revision"
+                    >
+                      ⭐
+                    </span>
+                  )}
+                </div>
+              </Link>
+            );
+          })}
         </div>
       </div>
     </div>
