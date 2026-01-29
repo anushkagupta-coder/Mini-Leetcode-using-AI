@@ -11,7 +11,10 @@ export default function LogoutButton() {
   }
 
   return (
-    <button onClick={logout} className="text-sm">
+    <button
+      onClick={logout}
+      className="text-sm font-medium text-slate-600 hover:text-rose-600 transition-colors"
+    >
       Logout
     </button>
   );
