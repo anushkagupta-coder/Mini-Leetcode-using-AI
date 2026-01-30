@@ -65,7 +65,8 @@ export default function HomePage() {
             Problems
           </h1>
           <p className="mt-2 text-slate-600">
-            Practice DSA. Search by title, save for revision.
+            An AI powered coding practise platform where you can code practise DSA, search by title,save for revision and get effecient evaluation from AI
+            which will provide you suggestions to improve your code.
           </p>
         </div>
 

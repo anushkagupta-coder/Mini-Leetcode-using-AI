@@ -18,9 +18,6 @@ export default function Header() {
         >
           <span className="text-2xl">💻</span>
           CodeIQ AI 
-          <p>An AI powered coding practise platform where you can code , revise and get best evaluation from AI
-            which will provide you suggestions to improve your code.
-          </p>
         </Link>
 
         <nav className="flex items-center gap-6">
