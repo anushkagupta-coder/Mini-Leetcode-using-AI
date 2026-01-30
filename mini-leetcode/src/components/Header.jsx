@@ -17,7 +17,10 @@ export default function Header() {
           className="font-bold text-xl text-slate-800 hover:text-indigo-600 transition-colors flex items-center gap-2"
         >
           <span className="text-2xl">💻</span>
-          Mini LeetCode
+          CodeIQ AI 
+          <p>An AI powered coding practise platform where you can code , revise and get best evaluation from AI
+            which will provide you suggestions to improve your code.
+          </p>
         </Link>
 
         <nav className="flex items-center gap-6">
