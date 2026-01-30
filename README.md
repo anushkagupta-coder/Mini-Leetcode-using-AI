@@ -1,6 +1,4 @@
-# 🚀 Mini LeetCode with AI
-
-A full-stack coding practice platform inspired by LeetCode, built using **Next.js** and **Supabase**, featuring efficient **DSA-based search**, **leaderboard ranking**, and **AI-like code evaluation**.
+A full-stack AI powered coding practice platform , built using **Next.js** and **Supabase**, featuring efficient **DSA-based search**, and **AI-like code evaluation**.
 
 ## ✨ Features
 
@@ -25,8 +23,6 @@ Used for prefix-based search of problem titles, allowing efficient search in **O
 
 ### Heap
 Used to implement leaderboard ranking efficiently, avoiding full sorting on every update.
-
-
 
 ---
 
